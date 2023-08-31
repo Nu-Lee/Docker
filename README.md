@@ -1,4 +1,2 @@
-# Wsclean
-=====
-## Dockerfile for wsclean3.3
-
+# Wsclean Dockerfile
+ https://wsclean.readthedocs.io/
