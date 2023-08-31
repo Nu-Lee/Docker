@@ -7,5 +7,5 @@ https://wsclean.readthedocs.io/
 ```
 cd Docker
 docker build -t wsclean ./
-docker run -it -v /mnt/d/mwa_data/a399/93:/root wsclean
+docker run -it -v data_dir:/root wsclean
 ```
