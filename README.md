@@ -1,8 +1,7 @@
 # Wsclean Dockerfile
 ---------------------
-wsclean v3.3 Dockerfile
--------------------------
-https://wsclean.readthedocs.io/
+wsclean v3.3 Dockerfile  
+https://wsclean.readthedocs.io/  
 You can pull images directly from Docker Hub
 --------------------
 ## Docker Hub
