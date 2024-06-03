@@ -1,60 +1,74 @@
-# Use Ubuntu 18.04 as the base image
-FROM ubuntu:18.04
+# Base image
+FROM ubuntu:22.04
 
-# Install essential packages
-RUN apt-get update && apt-get install -y \
-    git \
-    vim \
-    cmake \
-    build-essential \
-    pkg-config \
-    casacore-data casacore-dev \
-    libblas-dev liblapack-dev \
-    python3 \
-    libpython3-dev \
-    libboost-date-time-dev libboost-test-dev \
-    libboost-program-options-dev libboost-system-dev libboost-filesystem-dev \
-    libcfitsio-dev \
-    libfftw3-dev \
-    libgsl-dev \
-    libhdf5-dev \
-    libopenmpi-dev \
-    python3-dev python3-numpy \
-    python3-sphinx \
-    python3-pip \
-    ppa-purge
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Set the working directory to /tmp
-WORKDIR /tmp
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    wget bzip2 git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Clone the wsclean repository from GitLab
-RUN git clone https://gitlab.com/aroffringa/wsclean.git
+# Install Anaconda3
+RUN wget https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-x86_64.sh -O anaconda.sh && \
+    bash anaconda.sh -b -p /opt/anaconda3 && \
+    rm anaconda.sh
 
-# Install Python packages
-WORKDIR /tmp/wsclean/external
-RUN pip3 install pytest matplotlib pandas
+# Set PATH for Anaconda
+ENV PATH=/opt/anaconda3/bin:$PATH
 
-# Clone required Git repositories
-RUN git clone https://gitlab.com/ska-telescope/sdp/ska-sdp-func-radler.git \
-    && git clone https://github.com/pybind/pybind11.git \
-    && git clone https://git.astron.nl/RD/schaapcommon.git \
-    && git clone https://gitlab.com/aroffringa/aocommon.git
+# Create a Python 3.6 environment and activate it
+RUN conda create -y -n py36 python=3.6 && \
+    echo "source activate py36" > ~/.bashrc
 
-# Rename radler directory
-RUN mv ska-sdp-func-radler/ radler/
+# Install required Python packages in the py36 environment
+RUN /opt/anaconda3/bin/conda run -n py36 pip install sphinx_rtd_theme breathe myst-parser ephem AegeanTools numpy mwa_hyperbeam && \
+    /opt/anaconda3/bin/conda run -n py36 pip install git+https://github.com/MWATelescope/mwa_pb.git && \
+    /opt/anaconda3/bin/conda run -n py36 pip install git+https://github.com/Sunmish/skymodel.git && \
+    /opt/anaconda3/bin/conda run -n py36 pip install git+https://gitlab.com/Sunmish/flux_warp.git && \
+    /opt/anaconda3/bin/conda run -n py36 pip install git+https://github.com/nhurleywalker/fits_warp.git
 
-# Install GCC 8
-RUN apt-get update && apt-get install -y gcc-8 g++-8 \
-    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 40 \
-    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 40
+# Install other dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    casacore-dev libgsl-dev libhdf5-dev \
+    libfftw3-dev libboost-dev \
+    libboost-date-time-dev libboost-filesystem-dev \
+    libboost-program-options-dev libboost-system-dev \
+    libcfitsio-dev cmake g++ pkg-config \
+    doxygen libboost-all-dev libblas-dev \
+    liblapack-dev libxm12-dev libgtkmm-3.0-dev \
+    wcslib-dev xvfb aoflagger && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Apply code modifications
-WORKDIR /tmp/wsclean/external/schaapcommon/src/h5parm
-RUN sed -i -e '258s/^/\/\/ /' -e '259s/^/\/\/ /' -e '260s/^/\/\/ /' -e '428s/^/\/\/ /' soltab.cc
+# Install EveryBeam
+RUN git clone --recursive -j4 https://git.astron.nl/RD/EveryBeam.git && \
+    cd EveryBeam && \
+    mkdir build && cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/EveryBeam/ .. && \
+    make -j $(nproc) && make install
 
-# Build and install wsclean
-WORKDIR /tmp/wsclean
-RUN mkdir build && cd build && cmake .. && make -j `nproc` && make install
+# Install WSCLEAN
+RUN git clone -b master https://gitlab.com/aroffringa/wsclean.git && \
+    cd wsclean && \
+    mkdir build && cd build && \
+    cmake .. && \
+    make -j $(nproc) && make install
 
-# Set the working directory back to /root
-WORKDIR /root/
+# Install CASA
+RUN wget https://casa.nrao.edu/download/distro/casa/release/rhel/casa-6.6.3-22-py3.8.el8.tar.xz && \
+    mkdir -p /usr/local/bin/CASA && \
+    tar -xvf casa-6.6.3-22-py3.8.el8.tar.xz -C /usr/local/bin/CASA && \
+    cp -r /usr/local/bin/CASA/casa-6.6.3-22-py3.8.el8/data/* /var/lib/casacore/data/ && \
+    echo 'export PATH=$PATH:/usr/local/bin/CASA/casa-6.6.3-22-py3.8.el8/bin' >> /etc/profile
+
+# Install CARTA
+RUN add-apt-repository ppa:cartavis-team/carta -y && \
+    apt-get update && \
+    apt-get install -y carta
+
+# Set default command
+CMD ["/bin/bash"]
