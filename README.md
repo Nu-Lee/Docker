@@ -22,10 +22,10 @@ This guide provides instructions on how to clone, modify, build, and run the Doc
 ## Running Docker on a New Server
 
 1. Run the Docker container with port mapping and directory binding:  
-   `docker run -it -p 8888:8888 -p 3002:3002 --name test -v /path/on/host:/root/ dlskadnr1209/ryu-lab:v1`
+   `docker run -it -p 8888:8888 -p 3002:3002 --name test -v /path/on/host:/root/data/ dlskadnr1209/ryu-lab:v1`
 
    - This command maps the server ports to the Docker container ports (e.g., 8888 for Jupyter Notebook and 3002 for CARTA).
-   - It also binds a directory from the host (`/path/on/host`) to `/root/` inside the container.
+   - It also binds a directory from the host (`/path/on/host`) to `/root/data/` inside the container.
 
    **Note:** Ensure that the necessary ports are open on the server by using `ufw` or `iptables` to allow access.
 
