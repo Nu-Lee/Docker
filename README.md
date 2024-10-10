@@ -51,7 +51,7 @@ Open the necessary ports (8888 and 3002) on the server for external access:
    Once CARTA is running, it will provide an access URL. Modify the URL to use `localhost` instead of the internal Docker IP.
 
    - Example (output from CARTA):  
-     `CARTA is accessible at http://172.17.0.2:3002/?token=aaaaaaaa-aaaa-aaaa-aaaaa-aaaaaa`
+     `CARTA is accessible at http://aaa.aa.a.a:3002/?token=aaaaaaaa-aaaa-aaaa-aaaaa-aaaaaa`
 
    - Access it locally by changing the IP to `localhost`:  
      `http://localhost:3002/?token=aaaaaaaa-aaaa-aaaa-aaaaa-aaaaaa`
