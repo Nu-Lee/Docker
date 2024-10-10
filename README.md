@@ -1,6 +1,6 @@
 # Dockerfile Guide
 
-This guide provides instructions on how to clone, modify, build, and run the Docker container for the WSClean project, including steps for port configuration and accessing services like CARTA and Jupyter Notebook.
+This guide provides instructions on how to clone, modify, build, and run the Docker container for the research project, including steps for port configuration and accessing services like CARTA and Jupyter Notebook.
 
 ## Dockerfile Update or Modification
 
