@@ -11,7 +11,7 @@ COPY ./mwa-reduce /app/mwa-reduce/
 
 # Update package list and install dependencies
 RUN apt-get update && apt-get install -y \
-    git vim wget curl sudo cmake g++ pkg-config \
+    bc git vim wget curl sudo cmake g++ pkg-config \
     python3-pip xvfb casacore-dev libcfitsio-dev wcslib-dev \
     libboost-all-dev libgsl-dev libhdf5-dev libfftw3-dev \
     libblas-dev liblapack-dev libxml2-dev libgtkmm-3.0-dev \
@@ -27,7 +27,7 @@ RUN add-apt-repository ppa:cartavis-team/carta -y && \
 WORKDIR /app
 # Install Python dependencies
 RUN pip3 install --upgrade pip && \
-    pip3 install sphinx_rtd_theme breathe myst-parser ephem AegeanTools numpy notebook
+    pip3 install sphinx_rtd_theme breathe myst-parser ephem AegeanTools numpy notebook mwa_hyperbeam numpy==1.23.5 astropy==5.1
 
 # Clone and build WSCLEAN
 RUN git clone -b master https://gitlab.com/aroffringa/wsclean.git && \
