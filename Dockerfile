@@ -29,13 +29,17 @@ WORKDIR /app
 RUN pip3 install --upgrade pip && \
     pip3 install sphinx_rtd_theme breathe myst-parser ephem AegeanTools numpy notebook mwa_hyperbeam numpy==1.23.5 astropy==5.1
 
-# Clone and build WSCLEAN
-RUN git clone -b master https://gitlab.com/aroffringa/wsclean.git && \
-    cd wsclean && mkdir build && cd build && cmake .. && make -j$(nproc) && make install
 
 # Install EveryBeam
 RUN git clone --recursive https://git.astron.nl/RD/EveryBeam.git && \
     cd EveryBeam && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr/local/EveryBeam/ .. && make install
+
+RUN git clone https://git.astron.nl/RD/idg.git && \
+    cd idg && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr/local/idg/ .. && make -j$(nproc) && make install
+
+# Clone and build WSCLEAN
+RUN git clone -b master https://gitlab.com/aroffringa/wsclean.git && \
+    cd wsclean && mkdir build && cd build && cmake .. && make -j$(nproc) && make install
 
 # CASA installation
 RUN wget https://casa.nrao.edu/download/distro/casa/release/rhel/casa-6.6.3-22-py3.8.el8.tar.xz && \
@@ -62,6 +66,9 @@ WORKDIR /app/mwa-reduce
 RUN mkdir build
 WORKDIR /app/mwa-reduce/build
 RUN cmake .. && make
+
+WORKDIR /app/wsclean/build 
+RUN cmake -DCMAKE_INSTALL_PREFIX="/usr/local/EveryBeam/;/usr/local/idg/" .. && make -j$(nproc) && make install
 
 # Open necessary ports (Jupyter: 8888, CASA/CARTA: 3000, 4000)
 EXPOSE 8888 3002 4000
